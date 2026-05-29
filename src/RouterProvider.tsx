@@ -26,14 +26,10 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 		currentPath,
 		navigate: routerStore.navigate,
 		routes,
+		element,
 	};
 
-	return (
-		<RouterContext.Provider value={value}>
-			{element}
-			{children}
-		</RouterContext.Provider>
-	);
+	return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>;
 }
 
 export default RouterProvider;
