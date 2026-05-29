@@ -1,5 +1,5 @@
 import { type ReactNode, createContext, useSyncExternalStore } from "react";
-import { routerStore } from "./store/routerStore.ts";
+import { routerStore } from "./store/routerStore";
 
 interface Route {
 	path: string;
@@ -11,7 +11,19 @@ interface RouterProviderProps {
 	children: ReactNode;
 }
 
-const RouterContext = createContext(null);
+interface RouterContext {
+	currentPath: string;
+	navigate: (to: string, replace?: boolean) => void;
+	routes: Route[];
+	element: ReactNode;
+}
+
+const RouterContext = createContext<RouterContext>({
+	currentPath: "",
+	navigate: (to: string, replace) => {},
+	routes: [],
+	element: null,
+});
 
 function RouterProvider({ routes, children }: RouterProviderProps) {
 	const currentPath = useSyncExternalStore(
@@ -32,5 +44,4 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 	return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>;
 }
 
-export default RouterProvider;
-export { RouterContext };
+export { RouterContext, RouterProvider };

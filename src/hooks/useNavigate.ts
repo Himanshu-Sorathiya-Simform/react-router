@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { RouterContext } from "../RouterProvider.tsx";
+import { RouterContext } from "../RouterProvider";
 
 function useNavigate() {
 	const context = useContext(RouterContext);

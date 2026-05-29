@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { RouterContext } from "./RouterProvider.tsx";
+import { RouterContext } from "./RouterProvider";
 
 function Outlet() {
 	const { element } = useContext(RouterContext);
@@ -7,4 +7,4 @@ function Outlet() {
 	return <>{element}</>;
 }
 
-export default Outlet;
+export { Outlet };

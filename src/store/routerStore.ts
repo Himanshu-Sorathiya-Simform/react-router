@@ -1,15 +1,19 @@
+type Listener = (path: string) => void;
+
 function createRouterStore() {
-	let listeners = [];
+	let listeners = new Set<Listener>();
 	let currentPath = window.location.pathname;
 
 	function getSnapshot() {
 		return currentPath;
 	}
 
-	function subscribe(listener) {
-		listeners.push(listener);
+	function subscribe(listener: Listener) {
+		listeners.add(listener);
 
-		return () => (listeners = listeners.filter((l) => l !== listener));
+		return () => {
+			listeners.delete(listener);
+		};
 	}
 
 	function notify() {
