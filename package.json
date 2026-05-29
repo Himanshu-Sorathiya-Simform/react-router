@@ -1,0 +1,57 @@
+{
+	"name": "@himanshu-sorathiya/router",
+	"version": "1.0.0",
+	"description": "An easy router package made for React.",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"scripts": {
+		"dev": "vite",
+		"lint": "eslint .",
+		"preview": "vite preview",
+		"build": "npx tsup src/index.ts --format esm,cjs --clean && npx tsc --emitDeclarationOnly --outDir dist",
+		"format": "prettier . --write"
+	},
+	"keywords": [
+		"react",
+		"react router",
+		"router"
+	],
+	"author": "Himanshu Sorathiya",
+	"license": "MIT",
+	"type": "module",
+	"bugs": {
+		"url": "https://github.com/Himanshu-Sorathiya-Simform/react-router/issues"
+	},
+	"homepage": "https://github.com/Himanshu-Sorathiya-Simform/react-router#readme",
+	"dependencies": {
+		"react": "^19.2.6",
+		"react-dom": "^19.2.6"
+	},
+	"devDependencies": {
+		"prettier": "^3.8.3",
+		"tsup": "^8.5.1",
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^24.12.3",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^6.0.1",
+		"eslint": "^10.3.0",
+		"eslint-plugin-react-hooks": "^7.1.1",
+		"eslint-plugin-react-refresh": "^0.5.2",
+		"globals": "^17.6.0",
+		"typescript": "~6.0.2",
+		"typescript-eslint": "^8.59.2",
+		"vite": "^8.0.12"
+	}
+}
