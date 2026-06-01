@@ -1,4 +1,4 @@
-import { type ReactNode, createContext, useSyncExternalStore } from "react";
+import { type ReactNode, createContext, useMemo, useSyncExternalStore } from "react";
 import { routerStore } from "./store/routerStore";
 
 interface Route {
@@ -11,19 +11,13 @@ interface RouterProviderProps {
 	children: ReactNode;
 }
 
-interface RouterContext {
+interface RouterContextType {
 	currentPath: string;
 	navigate: (to: string, replace?: boolean) => void;
-	routes: Route[];
-	element: ReactNode;
+	activeElement: ReactNode;
 }
 
-const RouterContext = createContext<RouterContext>({
-	currentPath: "",
-	navigate: (to: string, replace) => {},
-	routes: [],
-	element: null,
-});
+const RouterContext = createContext<RouterContextType | null>(null);
 
 function RouterProvider({ routes, children }: RouterProviderProps) {
 	const currentPath = useSyncExternalStore(
@@ -32,14 +26,17 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 	);
 
 	const activeRoute = routes.find((route) => route.path === currentPath);
-	const element = activeRoute ? activeRoute.element : <div>404 Not Found</div>;
+	const activeElement =
+		activeRoute ? activeRoute.element : <div>404 Not Found</div>;
 
-	const value = {
-		currentPath,
-		navigate: routerStore.navigate,
-		routes,
-		element,
-	};
+	const value = useMemo(
+		() => ({
+			currentPath,
+			navigate: routerStore.navigate,
+			activeElement,
+		}),
+		[currentPath, activeElement],
+	);
 
 	return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>;
 }

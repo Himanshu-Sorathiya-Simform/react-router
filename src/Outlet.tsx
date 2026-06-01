@@ -2,9 +2,13 @@ import { useContext } from "react";
 import { RouterContext } from "./RouterProvider";
 
 function Outlet() {
-	const { element } = useContext(RouterContext);
+	const context = useContext(RouterContext);
 
-	return <>{element}</>;
+	if (!context) {
+		throw new Error("<Outlet /> must be used inside a <RouterProvider />");
+	}
+
+	return <>{context.activeElement}</>;
 }
 
 export { Outlet };
