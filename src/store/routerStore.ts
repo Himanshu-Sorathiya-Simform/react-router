@@ -1,3 +1,5 @@
+import { getMeta, getPath } from "../utils/routeUtils.js";
+
 type Listener = () => void;
 
 function createRouterStore() {
@@ -32,12 +34,23 @@ function createRouterStore() {
 	}
 
 	function navigate(to: string, replace = false) {
-		if (getSnapshot() === to) return;
+		const cleanPath = getPath(to);
+		const metaTail = getMeta(to).combined;
+
+		const cleanTarget = `${cleanPath}${metaTail}`;
+
+		const currentRawUrl =
+			window.location.pathname + window.location.search + window.location.hash;
+		const currentCleanUrl = `${getPath(currentRawUrl)}${getMeta(currentRawUrl).combined}`;
+
+		if (currentCleanUrl === cleanTarget) return;
 
 		if (replace) {
-			window.history.replaceState({}, "", to);
+			-window.history.replaceState({}, "", to);
+			+window.history.replaceState({}, "", cleanTarget);
 		} else {
-			window.history.pushState({}, "", to);
+			-window.history.pushState({}, "", to);
+			+window.history.pushState({}, "", cleanTarget);
 		}
 
 		notify();
