@@ -1,7 +1,9 @@
 import {
+	type ElementType,
 	type ReactNode,
 	cloneElement,
 	createContext,
+	Fragment,
 	isValidElement,
 	useContext,
 	useMemo,
@@ -36,16 +38,38 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 	const activeRoute = compiledRoutes.find(
 		(route) => route.absolutePath === normalizedPath,
 	);
-	const activeElement =
+	const activeElement: RouteElementType =
 		activeRoute ?
 			activeRoute.elementStack.reduceRight<ReactNode>(
 				(childComponent, parentLayout) => {
 					if (isValidElement(parentLayout)) {
-						return cloneElement(parentLayout, {} as any, childComponent);
+						if (parentLayout.type === Fragment) {
+							return (
+								<>
+									{
+										(
+											parentLayout.props as {
+												children?: ReactNode;
+											}
+										).children
+									}
+									{childComponent}
+								</>
+							);
+						}
+
+						return cloneElement(parentLayout, {} as any, [
+							(parentLayout.props as { children?: ReactNode })
+								.children,
+							childComponent,
+						]);
 					}
 
-					if (typeof parentLayout === "function") {
-						const Component = parentLayout as React.ComponentType<any>;
+					if (
+						typeof parentLayout === "function"
+						|| typeof parentLayout === "object"
+					) {
+						const Component = parentLayout as ElementType;
 
 						return <Component>{childComponent}</Component>;
 					}
