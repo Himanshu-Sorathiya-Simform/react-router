@@ -1,12 +1,9 @@
-import { useContext } from "react";
-import { RouterContext } from "../RouterProvider";
+import { useRouter } from "../context/RouterProvider";
 
 function useNavigate() {
-	const context = useContext(RouterContext);
+	const { navigate } = useRouter();
 
-	if (!context) throw new Error("useNavigate must be used within RouterProvider");
-
-	return context.navigate;
+	return navigate;
 }
 
 export { useNavigate };

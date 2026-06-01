@@ -3,66 +3,26 @@ import {
 	cloneElement,
 	createContext,
 	isValidElement,
+	useContext,
 	useMemo,
 	useSyncExternalStore,
 } from "react";
-import { routerStore } from "./store/routerStore";
-import { getPath } from "./utils/routeUtils.js";
-
-interface Route {
-	path: string;
-	element: ReactNode;
-	children?: Route[];
-}
+import { routerStore } from "../store/routerStore";
+import type { Route } from "../types/types.js";
+import { flattenRoutes, getPath } from "../utils/routeUtils.js";
 
 interface RouterProviderProps {
 	routes: Route[];
 	children: ReactNode;
 }
 
-interface RouterContextType {
+interface RouterContext {
 	currentPath: string;
 	navigate: (to: string, replace?: boolean) => void;
 	activeElement: ReactNode;
 }
 
-interface FlatRoute {
-	absolutePath: string;
-	elementStack: ReactNode[];
-}
-
-const RouterContext = createContext<RouterContextType | null>(null);
-
-function flattenRoutes(
-	userRoutes: Route[],
-	parentPath = "",
-	parentStack: ReactNode[] = [],
-): FlatRoute[] {
-	let flatList: FlatRoute[] = [];
-
-	for (const route of userRoutes) {
-		const combinedPath = `${parentPath}/${route.path}`;
-		const absolutePath = getPath(combinedPath);
-
-		const currentStack = [...parentStack, route.element];
-
-		flatList.push({
-			absolutePath,
-			elementStack: [...parentStack, route.element],
-		});
-
-		if (route.children && route.children.length > 0) {
-			const flatChildren = flattenRoutes(
-				route.children,
-				absolutePath,
-				currentStack,
-			);
-			flatList = flatList.concat(flatChildren);
-		}
-	}
-
-	return flatList;
-}
+const RouterContext = createContext<RouterContext | null>(null);
 
 function RouterProvider({ routes, children }: RouterProviderProps) {
 	const rawCurrentPath = useSyncExternalStore(
@@ -98,8 +58,8 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 			})
 		:	<div>404 Not Found</div>;
 
-	const value = useMemo(
-		(): RouterContextType => ({
+	const contextValue = useMemo(
+		(): RouterContext => ({
 			currentPath: normalizedPath,
 			navigate: routerStore.navigate,
 			activeElement,
@@ -107,7 +67,21 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 		[normalizedPath, activeElement],
 	);
 
-	return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>;
+	return (
+		<RouterContext.Provider value={contextValue}>
+			{children}
+		</RouterContext.Provider>
+	);
 }
 
-export { RouterContext, RouterProvider };
+function useRouter() {
+	const context = useContext(RouterContext);
+
+	if (!context) {
+		throw new Error("useRouter must be used inside a <RouterProvider />");
+	}
+
+	return context;
+}
+
+export { RouterProvider, useRouter };

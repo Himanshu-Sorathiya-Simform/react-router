@@ -1,3 +1,37 @@
+import type { ReactNode } from "react";
+import type { FlatRoute, Route } from "../types/types.js";
+
+function flattenRoutes(
+	userRoutes: Route[],
+	parentPath = "",
+	parentStack: ReactNode[] = [],
+): FlatRoute[] {
+	let flatList: FlatRoute[] = [];
+
+	for (const route of userRoutes) {
+		const combinedPath = `${parentPath}/${route.path}`;
+		const absolutePath = getPath(combinedPath);
+
+		const currentStack = [...parentStack, route.element];
+
+		flatList.push({
+			absolutePath,
+			elementStack: [...parentStack, route.element],
+		});
+
+		if (route.children && route.children.length > 0) {
+			const flatChildren = flattenRoutes(
+				route.children,
+				absolutePath,
+				currentStack,
+			);
+			flatList = flatList.concat(flatChildren);
+		}
+	}
+
+	return flatList;
+}
+
 function getPath(path: string) {
 	const decoded = decodeURIComponent(path).trim();
 
@@ -50,4 +84,4 @@ function getMeta(path: string) {
 	};
 }
 
-export { getMeta, getPath };
+export { flattenRoutes, getMeta, getPath };

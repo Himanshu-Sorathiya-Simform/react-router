@@ -1,8 +1,7 @@
+import type { Listener, RouterStore } from "../types/types.js";
 import { getMeta, getPath } from "../utils/routeUtils.js";
 
-type Listener = () => void;
-
-function createRouterStore() {
+function createRouterStore(): RouterStore {
 	let listeners = new Set<Listener>();
 
 	function getSnapshot() {
@@ -46,11 +45,9 @@ function createRouterStore() {
 		if (currentCleanUrl === cleanTarget) return;
 
 		if (replace) {
-			-window.history.replaceState({}, "", to);
-			+window.history.replaceState({}, "", cleanTarget);
+			window.history.replaceState({}, "", cleanTarget);
 		} else {
-			-window.history.pushState({}, "", to);
-			+window.history.pushState({}, "", cleanTarget);
+			window.history.pushState({}, "", cleanTarget);
 		}
 
 		notify();
@@ -65,4 +62,4 @@ function createRouterStore() {
 
 const routerStore = createRouterStore();
 
-export { createRouterStore, routerStore };
+export { routerStore };

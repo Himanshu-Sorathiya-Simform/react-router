@@ -1,5 +1,5 @@
 import type { AnchorHTMLAttributes, ReactNode } from "react";
-import { useNavigate } from "./hooks/useNavigate";
+import { useNavigate } from "../hooks/useNavigate";
 
 interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 	to: string;
