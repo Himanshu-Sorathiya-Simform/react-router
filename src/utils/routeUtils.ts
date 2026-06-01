@@ -1,10 +1,9 @@
-import type { ReactNode } from "react";
-import type { FlatRoute, Route } from "../types/types.js";
+import type { FlatRoute, Route, RouteElementType } from "../types/types.js";
 
 function flattenRoutes(
 	userRoutes: Route[],
 	parentPath = "",
-	parentStack: ReactNode[] = [],
+	parentStack: RouteElementType[] = [],
 ): FlatRoute[] {
 	let flatList: FlatRoute[] = [];
 
@@ -12,7 +11,7 @@ function flattenRoutes(
 		const combinedPath = `${parentPath}/${route.path}`;
 		const absolutePath = getPath(combinedPath);
 
-		const currentStack = [...parentStack, route.element];
+		const currentStack: RouteElementType[] = [...parentStack, route.element];
 
 		flatList.push({
 			absolutePath,

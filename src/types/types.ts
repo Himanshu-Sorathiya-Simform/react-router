@@ -1,6 +1,8 @@
-import type { ReactNode } from "react";
+import type { ElementType, ReactNode } from "react";
 
 type Listener = () => void;
+
+type RouteElementType = ReactNode | ElementType;
 
 interface RouterStore {
 	getSnapshot: () => string;
@@ -10,13 +12,13 @@ interface RouterStore {
 
 interface Route {
 	path: string;
-	element: ReactNode;
+	element: RouteElementType;
 	children?: Route[];
 }
 
 interface FlatRoute {
 	absolutePath: string;
-	elementStack: ReactNode[];
+	elementStack: RouteElementType[];
 }
 
-export type { FlatRoute, Listener, Route, RouterStore };
+export type { FlatRoute, Listener, Route, RouteElementType, RouterStore };

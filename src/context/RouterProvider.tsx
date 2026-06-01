@@ -8,7 +8,7 @@ import {
 	useSyncExternalStore,
 } from "react";
 import { routerStore } from "../store/routerStore";
-import type { Route } from "../types/types.js";
+import type { Route, RouteElementType } from "../types/types.js";
 import { flattenRoutes, getPath } from "../utils/routeUtils.js";
 
 interface RouterProviderProps {
@@ -19,7 +19,7 @@ interface RouterProviderProps {
 interface RouterContext {
 	currentPath: string;
 	navigate: (to: string, replace?: boolean) => void;
-	activeElement: ReactNode;
+	activeElement: RouteElementType;
 }
 
 const RouterContext = createContext<RouterContext | null>(null);
@@ -38,24 +38,27 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 	);
 	const activeElement =
 		activeRoute ?
-			activeRoute.elementStack.reduceRight((childComponent, parentLayout) => {
-				if (isValidElement(parentLayout)) {
-					return cloneElement(parentLayout, {} as any, childComponent);
-				}
+			activeRoute.elementStack.reduceRight<ReactNode>(
+				(childComponent, parentLayout) => {
+					if (isValidElement(parentLayout)) {
+						return cloneElement(parentLayout, {} as any, childComponent);
+					}
 
-				if (typeof parentLayout === "function") {
-					const Component = parentLayout as React.ComponentType<any>;
+					if (typeof parentLayout === "function") {
+						const Component = parentLayout as React.ComponentType<any>;
 
-					return <Component>{childComponent}</Component>;
-				}
+						return <Component>{childComponent}</Component>;
+					}
 
-				return (
-					<>
-						{parentLayout}
-						{childComponent}
-					</>
-				);
-			})
+					return (
+						<>
+							{parentLayout}
+							{childComponent}
+						</>
+					);
+				},
+				null,
+			)
 		:	<div>404 Not Found</div>;
 
 	const contextValue = useMemo(
