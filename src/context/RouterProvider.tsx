@@ -1,32 +1,23 @@
-import {
-	type ElementType,
-	type ReactNode,
-	cloneElement,
-	createContext,
-	Fragment,
-	isValidElement,
-	useContext,
-	useMemo,
-	useSyncExternalStore,
-} from "react";
+import { createContext, useContext, useMemo, useSyncExternalStore } from "react";
+import { RenderRouteElement } from "../components/RenderRouteElement.js";
 import { routerStore } from "../store/routerStore";
 import type { Route, RouteElementType } from "../types/types.js";
 import { flattenRoutes, getPath } from "../utils/routeUtils.js";
+import { DepthProvider } from "./DepthProvider.js";
 
 interface RouterProviderProps {
 	routes: Route[];
-	children: ReactNode;
 }
 
 interface RouterContext {
 	currentPath: string;
 	navigate: (to: string, replace?: boolean) => void;
-	activeElement: RouteElementType;
+	elementStack: RouteElementType[];
 }
 
 const RouterContext = createContext<RouterContext | null>(null);
 
-function RouterProvider({ routes, children }: RouterProviderProps) {
+function RouterProvider({ routes }: RouterProviderProps) {
 	const rawCurrentPath = useSyncExternalStore(
 		routerStore.subscribe,
 		routerStore.getSnapshot,
@@ -38,66 +29,30 @@ function RouterProvider({ routes, children }: RouterProviderProps) {
 	const activeRoute = compiledRoutes.find(
 		(route) => route.absolutePath === normalizedPath,
 	);
-	const activeElement: RouteElementType =
-		activeRoute ?
-			activeRoute.elementStack.reduceRight<ReactNode>(
-				(childComponent, parentLayout) => {
-					if (isValidElement(parentLayout)) {
-						if (parentLayout.type === Fragment) {
-							return (
-								<>
-									{
-										(
-											parentLayout.props as {
-												children?: ReactNode;
-											}
-										).children
-									}
-									{childComponent}
-								</>
-							);
-						}
 
-						return cloneElement(parentLayout, {} as any, [
-							(parentLayout.props as { children?: ReactNode })
-								.children,
-							childComponent,
-						]);
-					}
-
-					if (
-						typeof parentLayout === "function"
-						|| typeof parentLayout === "object"
-					) {
-						const Component = parentLayout as ElementType;
-
-						return <Component>{childComponent}</Component>;
-					}
-
-					return (
-						<>
-							{parentLayout}
-							{childComponent}
-						</>
-					);
-				},
-				null,
-			)
-		:	<div>404 Not Found</div>;
+	const elementStack = activeRoute ? activeRoute.elementStack : [];
 
 	const contextValue = useMemo(
 		(): RouterContext => ({
 			currentPath: normalizedPath,
 			navigate: routerStore.navigate,
-			activeElement,
+			elementStack,
 		}),
-		[normalizedPath, activeElement],
+		[normalizedPath, elementStack],
 	);
 
+	const rootElement: RouteElementType =
+		elementStack.length > 0 ? elementStack[0] : <div>404 Not Found</div>;
+
 	return (
-		<RouterContext.Provider value={contextValue}>
-			{children}
-		</RouterContext.Provider>
+		<RouterContext value={contextValue}>
+			<DepthProvider value={0}>
+				<RenderRouteElement
+					element={rootElement}
+					children={null}
+				/>
+			</DepthProvider>
+		</RouterContext>
 	);
 }
 
