@@ -1,9 +1,13 @@
 import { useRouter } from "../context/RouterProvider";
 
-function useNavigate() {
+interface UseNavigateReturn {
+	(to: string, replace?: boolean): void;
+}
+
+function useNavigate(): UseNavigateReturn {
 	const { navigate } = useRouter();
 
 	return navigate;
 }
 
-export { useNavigate };
+export { type UseNavigateReturn, useNavigate };

@@ -1,13 +1,12 @@
 import { type ElementType, type ReactNode, isValidElement } from "react";
 import type { RouteElementType } from "../types/types.js";
 
-function RenderRouteElement({
-	element,
-	children,
-}: {
+interface RenderRouteElementProps {
 	element: RouteElementType;
 	children: ReactNode;
-}) {
+}
+
+function RenderRouteElement({ element, children }: RenderRouteElementProps) {
 	if (!element) return <>{children}</>;
 
 	if (isValidElement(element)) {
